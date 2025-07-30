@@ -56,8 +56,10 @@ function removeFavorite(cityName) {
 
 // Dynamic backgrounds based on weather
 function updateBackground(weatherMain) {
+    console.log('Updating background for weather condition:', weatherMain);
+    
     const weatherMap = {
-        'Clear': 'bg-clear',
+        'Clear': 'bg-sunny',
         'Clouds': 'bg-cloudy',
         'Rain': 'bg-rainy',
         'Drizzle': 'bg-rainy',
@@ -195,7 +197,9 @@ function searchCity(inputVal) {
             li.draggable = true;
             
             // Store the actual weather condition in the card data
-            li.setAttribute('data-weather', weather[0].main);
+            const weatherCondition = weather[0].main;
+            li.setAttribute('data-weather', weatherCondition);
+            console.log('Stored weather condition for', name + ':', weatherCondition);
             
             const isFavorite = favorites.includes(`${name},${sys.country}`);
             
