@@ -76,6 +76,7 @@ function updateBackground(weatherMain) {
     
     const bgClass = weatherMap[weatherMain] || 'bg-clear';
     body.className = `min-h-screen ${bgClass} relative transition-all duration-1000`;
+    console.log('Background updated to:', weatherMain, bgClass);
 }
 
 // Drag and drop functionality
@@ -92,8 +93,10 @@ function setupDragAndDrop() {
     list.addEventListener('dragend', (e) => {
         if (e.target.closest('.city-card')) {
             e.target.closest('.city-card').classList.remove('dragging');
-            // Update background based on the first card's weather after reordering
-            updateBackgroundFromFirstCard();
+            // Update background based on the leftmost (first) card's weather after reordering
+            setTimeout(() => {
+                updateBackgroundFromLeftmostCard();
+            }, 100);
         }
     });
     
@@ -113,35 +116,22 @@ function setupDragAndDrop() {
     });
 }
 
-// Update background based on the first card's weather
-function updateBackgroundFromFirstCard() {
+// Update background based on the leftmost (first) card's weather
+function updateBackgroundFromLeftmostCard() {
     const firstCard = list.querySelector('.city-card');
     if (firstCard) {
-        const weatherIcon = firstCard.querySelector('.city-icon');
-        if (weatherIcon) {
-            const iconSrc = weatherIcon.src;
-            // Extract weather condition from icon URL
-            const iconCode = iconSrc.split('/').pop().split('.')[0];
-            const weatherCondition = getWeatherConditionFromIcon(iconCode);
+        // Get the weather condition from the card's data attribute
+        const weatherCondition = firstCard.getAttribute('data-weather');
+        console.log('Weather condition from leftmost card:', weatherCondition);
+        
+        if (weatherCondition) {
             updateBackground(weatherCondition);
+        } else {
+            console.log('No weather condition found in first card');
         }
+    } else {
+        console.log('No first card found');
     }
-}
-
-// Get weather condition from icon code
-function getWeatherConditionFromIcon(iconCode) {
-    const weatherMap = {
-        '01d': 'Clear', '01n': 'Clear',
-        '02d': 'Clouds', '02n': 'Clouds',
-        '03d': 'Clouds', '03n': 'Clouds',
-        '04d': 'Clouds', '04n': 'Clouds',
-        '09d': 'Rain', '09n': 'Rain',
-        '10d': 'Rain', '10n': 'Rain',
-        '11d': 'Thunderstorm', '11n': 'Thunderstorm',
-        '13d': 'Snow', '13n': 'Snow',
-        '50d': 'Mist', '50n': 'Mist'
-    };
-    return weatherMap[iconCode] || 'Clear';
 }
 
 // Clear button functionality
@@ -204,6 +194,9 @@ function searchCity(inputVal) {
             li.classList.add("city", "city-card");
             li.draggable = true;
             
+            // Store the actual weather condition in the card data
+            li.setAttribute('data-weather', weather[0].main);
+            
             const isFavorite = favorites.includes(`${name},${sys.country}`);
             
             const markup = `
@@ -236,8 +229,10 @@ function searchCity(inputVal) {
             li.innerHTML = markup;
             list.appendChild(li);
             
-            // Update background based on weather
-            updateBackground(weather[0].main);
+            // Update background based on the leftmost card's weather
+            setTimeout(() => {
+                updateBackgroundFromLeftmostCard();
+            }, 100);
         })
         .catch(() => {
             msg.textContent = "Please search for a valid city 😩";
