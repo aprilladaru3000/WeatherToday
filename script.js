@@ -4,20 +4,11 @@ const input = document.querySelector("#searchInput");
 const msg = document.querySelector(".msg");
 const list = document.querySelector("#citiesList");
 const clearBtn = document.getElementById("clearBtn");
-const suggestions = document.getElementById("suggestions");
 const favoritesContainer = document.getElementById("favorites");
 const body = document.getElementById("body");
 
 /*SUBSCRIBE HERE FOR API KEY: https://home.openweathermap.org/users/sign_up*/
 const apiKey = "9cf5a2cda588279529a36d4d6df4a2ff";
-
-// Popular cities for search suggestions
-const popularCities = [
-    "London,UK", "New York,US", "Tokyo,JP", "Paris,FR", "Sydney,AU",
-    "Berlin,DE", "Rome,IT", "Madrid,ES", "Amsterdam,NL", "Vienna,AT",
-    "Bangkok,TH", "Singapore,SG", "Dubai,AE", "Mumbai,IN", "Beijing,CN",
-    "Seoul,KR", "Mexico City,MX", "São Paulo,BR", "Cairo,EG", "Istanbul,TR"
-];
 
 // Favorites management
 let favorites = JSON.parse(localStorage.getItem('weatherFavorites')) || [];
@@ -26,7 +17,6 @@ let favorites = JSON.parse(localStorage.getItem('weatherFavorites')) || [];
 function init() {
     loadFavorites();
     setupDragAndDrop();
-    setupSearchSuggestions();
 }
 
 // Favorites functionality
@@ -85,44 +75,7 @@ function updateBackground(weatherMain) {
     };
     
     const bgClass = weatherMap[weatherMain] || 'bg-clear';
-    body.className = `min-h-screen ${bgClass} relative overflow-hidden transition-all duration-1000`;
-}
-
-// Search suggestions
-function setupSearchSuggestions() {
-    input.addEventListener('input', (e) => {
-        const value = e.target.value.toLowerCase();
-        if (value.length < 2) {
-            suggestions.classList.add('hidden');
-            return;
-        }
-        
-        const filtered = popularCities.filter(city => 
-            city.toLowerCase().includes(value)
-        );
-        
-        if (filtered.length > 0) {
-            suggestions.innerHTML = filtered.map(city => 
-                `<div class="suggestion-item" onclick="selectSuggestion('${city}')">${city}</div>`
-            ).join('');
-            suggestions.classList.remove('hidden');
-        } else {
-            suggestions.classList.add('hidden');
-        }
-    });
-    
-    // Hide suggestions when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !suggestions.contains(e.target)) {
-            suggestions.classList.add('hidden');
-        }
-    });
-}
-
-function selectSuggestion(city) {
-    input.value = city;
-    suggestions.classList.add('hidden');
-    searchCity(city);
+    body.className = `min-h-screen ${bgClass} relative transition-all duration-1000`;
 }
 
 // Drag and drop functionality
@@ -139,6 +92,8 @@ function setupDragAndDrop() {
     list.addEventListener('dragend', (e) => {
         if (e.target.closest('.city-card')) {
             e.target.closest('.city-card').classList.remove('dragging');
+            // Update background based on the first card's weather after reordering
+            updateBackgroundFromFirstCard();
         }
     });
     
@@ -158,12 +113,43 @@ function setupDragAndDrop() {
     });
 }
 
+// Update background based on the first card's weather
+function updateBackgroundFromFirstCard() {
+    const firstCard = list.querySelector('.city-card');
+    if (firstCard) {
+        const weatherIcon = firstCard.querySelector('.city-icon');
+        if (weatherIcon) {
+            const iconSrc = weatherIcon.src;
+            // Extract weather condition from icon URL
+            const iconCode = iconSrc.split('/').pop().split('.')[0];
+            const weatherCondition = getWeatherConditionFromIcon(iconCode);
+            updateBackground(weatherCondition);
+        }
+    }
+}
+
+// Get weather condition from icon code
+function getWeatherConditionFromIcon(iconCode) {
+    const weatherMap = {
+        '01d': 'Clear', '01n': 'Clear',
+        '02d': 'Clouds', '02n': 'Clouds',
+        '03d': 'Clouds', '03n': 'Clouds',
+        '04d': 'Clouds', '04n': 'Clouds',
+        '09d': 'Rain', '09n': 'Rain',
+        '10d': 'Rain', '10n': 'Rain',
+        '11d': 'Thunderstorm', '11n': 'Thunderstorm',
+        '13d': 'Snow', '13n': 'Snow',
+        '50d': 'Mist', '50n': 'Mist'
+    };
+    return weatherMap[iconCode] || 'Clear';
+}
+
 // Clear button functionality
 clearBtn.addEventListener("click", () => {
     list.innerHTML = "";
     msg.textContent = "";
     input.focus();
-    body.className = "min-h-screen bg-gradient-to-br from-sky-400 via-blue-400 to-sky-500 relative overflow-hidden transition-all duration-1000";
+    body.className = "min-h-screen bg-gradient-to-br from-sky-400 via-blue-400 to-sky-500 relative transition-all duration-1000";
 });
 
 // Search city function

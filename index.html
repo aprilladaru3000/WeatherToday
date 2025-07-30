@@ -54,31 +54,9 @@
             opacity: 0.5;
             transform: rotate(5deg);
         }
-        
-        /* Search suggestions */
-        .suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            z-index: 50;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .suggestion-item {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .suggestion-item:hover {
-            background-color: #f1f5f9;
-        }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-sky-400 via-blue-400 to-sky-500 relative overflow-hidden transition-all duration-1000" id="body">
+<body class="min-h-screen bg-gradient-to-br from-sky-400 via-blue-400 to-sky-500 relative transition-all duration-1000" id="body">
     <!-- Moving Clouds Background -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="cloud absolute top-20 left-10 text-white/20 text-6xl">☁️</div>
@@ -91,7 +69,7 @@
     <!-- Main Content -->
     <div class="relative z-10 min-h-screen flex flex-col">
         <!-- Header Section -->
-        <section class="flex-1 flex items-center justify-center px-4 py-8">
+        <section class="flex-shrink-0 px-4 py-8">
             <div class="w-full max-w-4xl mx-auto text-center">
                 <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 drop-shadow-lg">
                     Weather Today
@@ -108,7 +86,6 @@
                                 autofocus
                                 id="searchInput"
                             >
-                            <div class="suggestions hidden" id="suggestions"></div>
                         </div>
                         <div class="flex gap-3">
                             <button 
@@ -140,7 +117,7 @@
         </section>
 
         <!-- Weather Cards Section -->
-        <section class="px-4 pb-8">
+        <section class="flex-1 px-4 pb-8">
             <div class="w-full max-w-7xl mx-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-white">Current Weather</h2>
